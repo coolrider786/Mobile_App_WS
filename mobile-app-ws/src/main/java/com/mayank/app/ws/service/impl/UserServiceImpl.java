@@ -10,8 +10,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.mayank.app.ws.UserRepository;
 import com.mayank.app.ws.io.entity.UserEntity;
+import com.mayank.app.ws.io.repositories.UserRepository;
 import com.mayank.app.ws.service.UserService;
 import com.mayank.app.ws.shared.Utils;
 import com.mayank.app.ws.shared.dto.UserDto;
@@ -48,6 +48,15 @@ public class UserServiceImpl implements UserService {
 		
 		return returnValue;
 	}
+	
+	@Override
+	public UserDto getUser(String email) {
+		UserEntity userEntity = userRepository.findByEmail(email);
+		if(userEntity == null) throw new UsernameNotFoundException(email);
+		UserDto returnValue = new UserDto();
+		BeanUtils.copyProperties(userEntity, returnValue);
+		return returnValue;
+	}
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -55,6 +64,16 @@ public class UserServiceImpl implements UserService {
 		
 		if(userEntity == null) throw new UsernameNotFoundException(email);
 		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+	}
+
+	@Override
+	public UserDto getUserById(String userId) {
+		UserDto returnValue = new UserDto();
+		
+		UserEntity userEntity = userRepository.findByUserId(userId);
+		if(userEntity == null) throw new UsernameNotFoundException(userId);
+		BeanUtils.copyProperties(userEntity, returnValue);
+		return returnValue;
 	}
 
 }
