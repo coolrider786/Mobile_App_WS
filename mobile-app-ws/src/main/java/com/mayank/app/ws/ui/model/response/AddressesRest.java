@@ -1,6 +1,8 @@
 package com.mayank.app.ws.ui.model.response;
 
-public class AddressesRest {
+import org.springframework.hateoas.RepresentationModel;;
+
+public class AddressesRest extends RepresentationModel{
 
 	public String getAddressId() {
 		return addressId;
