@@ -10,7 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-@Entity(name="users")
+@Entity(name = "users")
 public class UserEntity implements Serializable {
 
 	private static final long serialVersionUID = 4535685120802012800L;
@@ -97,12 +97,13 @@ public class UserEntity implements Serializable {
 
 	@Column(nullable = false)
 	private String encryptedPassword;
+	
 	private String emailVerificationToken;
 
 	@Column(nullable = false)
-	private Boolean emailVerificationStatus = false;
-	
-	@OneToMany(mappedBy="userDetails", cascade = CascadeType.ALL)
+	private Boolean emailVerificationStatus;
+
+	@OneToMany(mappedBy = "userDetails", cascade = CascadeType.ALL)
 	private List<AddressEntity> addresses;
 
 	public List<AddressEntity> getAddresses() {

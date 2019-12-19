@@ -28,6 +28,8 @@ import com.mayank.app.ws.service.AddressService;
 import com.mayank.app.ws.service.UserService;
 import com.mayank.app.ws.shared.dto.AddressDto;
 import com.mayank.app.ws.shared.dto.UserDto;
+import com.mayank.app.ws.ui.model.request.PasswordResetModel;
+import com.mayank.app.ws.ui.model.request.PasswordResetRequestModel;
 import com.mayank.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.mayank.app.ws.ui.model.response.AddressesRest;
 import com.mayank.app.ws.ui.model.response.OperationStatusModel;
@@ -167,5 +169,63 @@ public class UserController {
 		addressRest.add(addressesLink);
 		return new EntityModel<>(addressRest);
 		
+	}
+	
+	@GetMapping(path="/email-verification", produces = { MediaType.APPLICATION_XML_VALUE,
+			MediaType.APPLICATION_JSON_VALUE })
+	public OperationStatusModel verifyEmailToken(@RequestParam(value= "token") String token) {
+		
+		OperationStatusModel returnValue = new OperationStatusModel();
+		returnValue.setOperationName(RequestOperationName.VERIFY_EMAIL.name());
+		
+		boolean isVerified = userService.verifyEmailToken(token);
+		
+		if(isVerified) {
+			returnValue.setOpertaionResult(RequestOperationStatus.SUCCESS.name());
+		}else {
+			returnValue.setOpertaionResult(RequestOperationStatus.ERROR.name());
+		}
+		
+		return returnValue;
+	}
+	
+	@PostMapping(path = "/password-reset-request", 
+			consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
+			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }) 
+	public OperationStatusModel requestRest(@RequestBody PasswordResetRequestModel passwordResetRequestModel) {
+		
+		OperationStatusModel returnValue = new OperationStatusModel();
+		
+		boolean operationResult = userService.requestPasswordReset(passwordResetRequestModel.getEmail());
+		
+		returnValue.setOperationName(RequestOperationName.REQUEST_PASSOWRD_RESET.name());
+		returnValue.setOpertaionResult(RequestOperationStatus.ERROR.name());
+		
+		if(operationResult) {
+			returnValue.setOpertaionResult(RequestOperationStatus.SUCCESS.name());
+		}
+		
+		return returnValue;
+	}
+	
+	@PostMapping(path = "/password-reset", 
+			consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
+			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }) 
+	public OperationStatusModel requestRest(@RequestBody PasswordResetModel passwordResetModel) {
+		
+		OperationStatusModel returnValue = new OperationStatusModel();
+		
+		boolean operationResult = userService.resetPassword(
+				passwordResetModel.getToken(),
+				passwordResetModel.getPassword());
+		
+		returnValue.setOperationName(RequestOperationName.REQUEST_RESET.name());
+		returnValue.setOpertaionResult(RequestOperationStatus.ERROR.name());
+		
+		if(operationResult) {
+			returnValue.setOpertaionResult(RequestOperationStatus.SUCCESS.name());
+		}
+		
+		return returnValue;
 	}
 }

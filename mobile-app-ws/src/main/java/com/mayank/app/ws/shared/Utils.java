@@ -1,11 +1,18 @@
 package com.mayank.app.ws.shared;
 
 import java.security.SecureRandom;
+import java.util.Date;
 import java.util.Random;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+import com.mayank.app.ws.security.SecurityConstants;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+@Service
 public class Utils {
 	
 	private final Random RANDOM   = new SecureRandom();
@@ -27,5 +34,37 @@ public class Utils {
 		}
 		
 		return new String(returnValue);
+	}
+	
+	public static boolean hasTokenExpired(String token) {
+		Claims claims = Jwts.parser()
+		.setSigningKey(SecurityConstants.getTokenSecret())
+		.parseClaimsJws( token ).getBody();
+		
+		Date tokenExpirationDate = claims.getExpiration();
+		Date todayDate = new Date();
+		
+		return tokenExpirationDate.before(todayDate);
+	}
+	
+	public String generateEmailVerificationToken(String userId) {
+		
+		String token = Jwts.builder()
+				.setSubject(userId)
+				.setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPRIATION_TIME))
+				.signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret())
+				.compact();
+		
+		return token;
+	}
+	
+	public String generatePasswordResetToken(String userId) {
+		String token = Jwts.builder()
+				.setSubject(userId)
+				.setExpiration(new Date(System.currentTimeMillis()+SecurityConstants.PASSWORD_RESET_EXPRIATION_TIME))
+				.signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret())
+				.compact();
+		
+		return token;
 	}
 }
